@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Esqueci !? Lista de compras</title>
+
+    <!-- tailwind cdn -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- font awesome cdn -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <!-- google fonts cdn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Handlee&display=swap" rel="stylesheet">
+
+    <!-- tailwind configs -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              hand: ['"Handlee"', '"cursive"'],
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="font-hand">
+    <header class="flex justify-center items-center p-4 mb-6">
+      <img class="w-16" src="/assets/images/logo.png" alt="Logo" />
+      <div class="flex flex-col items-center ml-5 font-bold">
+        <h1>Esqueci !?</h1>
+        <h1>Lista de compras</h1>
+      </div>
+    </header>
+
+    <div class="relative">
+      <div id="heading-ctn" class="flex justify-center">
+        <div id="heading-title">
+          <p id="title" class="w-fit border-b px-5">Minhas Listas</p>
+        </div>
+
+        <!-- <div id="add" class="absolute right-10 cursor-pointer">
+          <i class="fa-solid fa-circle-plus"></i>
+        </div> -->
+      </div>
+    </div>
+
+    <main id="main-ctn">
+      <!-- vazia -->
+      <!-- <div id="empty-ctn" class="flex items-center justify-center pt-28">
+        <div class="flex flex-col items-center">
+          <img class="w-28 mb-4" src="assets/images/no-data.svg" alt="Lista vazia"/>
+          <p>Nenhuma lista criada.</p>
+          <p>Clique no + para criar uma nova lista.</p>
+        </div>
+      </div> -->
+
+      <!-- listas -->
+      <!-- <div id="lists-ctn" class="pt-8 px-6">
+        <div id="list-item-ctn">
+          <div class="flex justify-between border rounded-lg p-3 mb-1 cursor-pointer">
+            <p>Compras Abril</p>
+  
+            <div class="flex">
+              <p class="mr-3">R$ 290,50</p>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+          </div>
+
+          <div class="flex flex-col border rounded-lg p-3">
+            <div class="flex justify-between">
+              <p>Maionese Hellmans</p>
+              <p>R$ 20,00</p>
+            </div>
+
+            <div class="flex justify-between">
+              <p>Maionese Hellmans</p>
+              <p>R$ 20,00</p>
+            </div>
+
+            <div class="flex justify-between">
+              <p>Maionese Hellmans</p>
+              <p>R$ 20,00</p>
+            </div>
+
+            <div class="flex justify-between">
+              <p>Maionese Hellmans</p>
+              <p>R$ 20,00</p>
+            </div>
+
+            <div class="flex justify-between">
+              <p>Maionese Hellmans</p>
+              <p>R$ 20,00</p>
+            </div>
+            
+            <div class="flex justify-center mt-2">
+              <i class="fa-solid fa-pen-to-square cursor-pointer"></i>
+            </div>
+          </div>
+        </div>
+      </div> -->
+      
+      <!-- criar -->
+      <!-- <div id="create-ctn" class="pt-8 px-6">
+        <form class="flex flex-col mb-6">
+          <input class="border rounded-lg p-1 pl-2" type="text" placeholder="Digite o nome da lista..."/>
+
+          <div id="divider" class="py-4">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+
+          <input class="border rounded-lg p-1 pl-2 mb-2" type="text" placeholder="Digite o nome do produto..."/>
+          <input class="border rounded-lg p-1 pl-2 mb-2" type="text" placeholder="Digite o preço do produto..."/>
+
+          <div class="flex justify-center">
+            <button class="border rounded-lg p-2">Adicionar</button>
+          </div>
+        </form>
+
+        <div class="flex justify-between border rounded-lg p-3 mb-1">
+          <p>Compras Abril</p>
+
+          <div class="flex">
+            <p class="mr-6">R$ 290,50</p>
+            <i class="fa-solid fa-trash cursor-pointer"></i>
+          </div>
+        </div>
+
+        <div class="flex justify-between border rounded-lg p-3 mb-1">
+          <p>Compras Abril</p>
+
+          <div class="flex">
+            <p class="mr-6">R$ 290,50</p>
+            <i class="fa-solid fa-trash cursor-pointer"></i>
+          </div>
+        </div>
+      </div> -->
+    </main>
+    
+    <script src="index.js"></script>
+  </body>
+</html>
