@@ -76,18 +76,97 @@ function moveToMainPage() {
   clearMainContainer();
   controlHeading("main");
 
-  const emptyListCtn = document.createElement("div");
-  emptyListCtn.id = "empty-ctn";
-  emptyListCtn.className = "flex items-center justify-center pt-28";
-  emptyListCtn.innerHTML = `
-    <div class="flex flex-col items-center">
-      <img class="w-28 mb-4" src="assets/images/no-data.svg" alt="Lista vazia"/>
-      <p>Nenhuma lista criada.</p>
-      <p>Clique no + para criar uma nova lista.</p>
-    </div>
-  `;
+  const lists = getLists();
 
-  mainCtn.appendChild(emptyListCtn);
+  if (lists && lists.length) {
+    const listsCtn = document.createElement("div");
+    listsCtn.id = "lists-ctn";
+    listsCtn.className = "pt-8 px-6";
+
+    lists.forEach((list) => {
+      const listItemCtn = document.createElement("div");
+      listItemCtn.id = "list-item-ctn";
+      listItemCtn.className =
+        "flex flex-col justify-between border rounded-lg p-3 mb-1 cursor-pointer";
+      listItemCtn.innerHTML = `        
+        <div id=${
+          "list-item-" + list.id
+        } class="flex justify-between border rounded-lg p-3 mb-1 cursor-pointer">
+          <p>${list.name}</p>
+
+          <div class="flex">
+            <p class="mr-3">R$ ?</p>
+            <i id=${
+              "toggle-item-details-" + list.id
+            } class="fa-solid fa-chevron-down"></i>
+          </div>
+        </div>
+      `;
+
+      listsCtn.append(listItemCtn);
+
+      // wait appends
+      setTimeout(() => {
+        const toggleItemBtn = document.getElementById(
+          `toggle-item-details-${list.id}`
+        );
+        toggleItemBtn.addEventListener("click", () => {
+          const { products } = list;
+          const itemDetailsCtnId = `item-details-ctn-${list.id}`;
+          const itemDetailsCtn = document.getElementById(itemDetailsCtnId);
+
+          if (itemDetailsCtn) {
+            itemDetailsCtn.remove();
+            toggleItemBtn.classList = "fa-solid fa-chevron-down";
+          } else {
+            const itemDetailsCtnDiv = document.createElement("div");
+            itemDetailsCtnDiv.className = "flex flex-col border rounded-lg p-3";
+            itemDetailsCtnDiv.id = itemDetailsCtnId;
+
+            products.forEach((product) => {
+              const itemDetailDiv = document.createElement("div");
+              itemDetailDiv.className = "flex justify-between";
+              itemDetailDiv.innerHTML = `
+                <p>${product.name}</p>
+                <p>R$ ${product.price}</p>
+              `;
+
+              itemDetailsCtnDiv.appendChild(itemDetailDiv);
+            });
+
+            const editButtonDiv = document.createElement("div");
+            editButtonDiv.className = "flex justify-center mt-2";
+            editButtonDiv.id = "edit-item";
+            editButtonDiv.innerHTML = `
+              <i class="fa-solid fa-pen-to-square cursor-pointer"></i>
+            `;
+            editButtonDiv.addEventListener("click", () => {
+              console.log("edit list ", list.id);
+            });
+
+            itemDetailsCtnDiv.appendChild(editButtonDiv);
+            listItemCtn.appendChild(itemDetailsCtnDiv);
+            toggleItemBtn.classList = "fa-solid fa-chevron-up";
+          }
+        });
+      });
+
+      mainCtn.append(listsCtn);
+    }, 500);
+  } else {
+    const emptyListCtn = document.createElement("div");
+    emptyListCtn.id = "empty-ctn";
+    emptyListCtn.className = "flex items-center justify-center pt-28";
+    emptyListCtn.innerHTML = `
+      <div class="flex flex-col items-center">
+        <img class="w-28 mb-4" src="assets/images/no-data.svg" alt="Lista vazia"/>
+        <p>Nenhuma lista criada.</p>
+        <p>Clique no + para criar uma nova lista.</p>
+      </div>
+    `;
+
+    mainCtn.appendChild(emptyListCtn);
+  }
 }
 
 function moveToAddListScreen() {
@@ -118,16 +197,23 @@ function moveToAddListScreen() {
   mainCtn.appendChild(createCtn);
 
   const form = document.getElementById("add-form");
-  form.addEventListener('submit', (event) => {
+  form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const inputs = Array.from(document.querySelectorAll('#add-form input'));    
-    const values = inputs.reduce((keyValues, input) => ({ ...keyValues, [input.id]: input.value }), {});
+    const inputs = Array.from(document.querySelectorAll("#add-form input"));
+    const values = inputs.reduce(
+      (keyValues, input) => ({ ...keyValues, [input.id]: input.value }),
+      {}
+    );
 
     const id = new Date().valueOf();
-    editItens.push({ name: values.productName, price: values.productPrice });
+    editItens.push({
+      id: id,
+      name: values.productName,
+      price: values.productPrice,
+    });
 
-    const productDiv = document.createElement('div');
-    productDiv.className = 'flex justify-between border rounded-lg p-3 mb-1';
+    const productDiv = document.createElement("div");
+    productDiv.className = "flex justify-between border rounded-lg p-3 mb-1";
     productDiv.innerHTML = `
       <p>${values.productName}</p>
       <div class="flex">
@@ -135,66 +221,88 @@ function moveToAddListScreen() {
         <i id='delete-list-item' class="fa-solid fa-trash cursor-pointer"></i>
       </div>
     `;
-    productDiv.id = 'item-' + id;
+    productDiv.setAttribute("data-id", id);
 
     createCtn.appendChild(productDiv);
-    
-    const deleteBtn = document.querySelector(`#item-${id} #delete-list-item`);
-    deleteBtn.addEventListener('click', () => {
+
+    const deleteBtn = document.querySelector(
+      `[data-id="${id}"] #delete-list-item`
+    );
+    deleteBtn.addEventListener("click", () => {
       productDiv.remove();
-      
-      const itemIndex = editItens.findIndex(item => item.id === id);
+
+      const itemIndex = editItens.findIndex((item) => item.id === id);
       editItens.splice(itemIndex, 1);
-    })
+    });
+
+    inputs[1].value = "";
+    inputs[2].value = "";
+  });
+
+  const saveBtn = document.getElementById("save");
+  saveBtn.addEventListener("click", () => {
+    const listName = document.getElementById("listName").value;
+
+    const listToPersist = {
+      id: new Date().valueOf(),
+      name: listName,
+      products: editItens,
+    };
+
+    console.log("listToPersist", listToPersist);
+
+    addListToStorage(listToPersist);
+    editItens.splice(0, editItens.length);
+    moveToMainPage();
   });
 }
 
 // storage functions
 function addListToStorage(list) {
-  const listsResponse = localStorage.getItem('lists');
+  const listsResponse = localStorage.getItem("lists");
 
-  if(!listsResponse) {
+  if (!listsResponse) {
     const allLists = [list];
-    localStorage.setItem('lists', allLists);
+    localStorage.setItem("lists", JSON.stringify(allLists));
   } else {
     const lists = JSON.parse(listsResponse);
     lists.push(list);
-    localStorage.setItem('lists', lists);
+    localStorage.setItem("lists", lists);
   }
 }
 
 function editListInStorage(list) {
-  const listsResponse = localStorage.getItem('lists');
+  const listsResponse = localStorage.getItem("lists");
 
-  if(listsResponse) {
+  if (listsResponse) {
     const lists = JSON.parse(listsResponse);
-    const listToEditIndex = lists.findIndex(l => l.id === list.id);
+    const listToEditIndex = lists.findIndex((l) => l.id === list.id);
     lists[listToEditIndex] = list;
 
-    localStorage.setItem('lists', lists);
+    localStorage.setItem("lists", JSON.stringify(lists));
   } else {
-    console.error('editListInStorage error', listsResponse);
+    console.error("editListInStorage error", listsResponse);
   }
 }
 
 function removeListInStorage(id) {
-  const listsResponse = localStorage.getItem('lists');
+  const listsResponse = localStorage.getItem("lists");
 
-  if(listsResponse) {
+  if (listsResponse) {
     const lists = JSON.parse(listsResponse);
-    const listToEditIndex = lists.findIndex(l => l.id === id);
+    const listToEditIndex = lists.findIndex((l) => l.id === id);
     lists.splice(listToEditIndex, 1);
 
-    localStorage.setItem('lists', lists);
+    localStorage.setItem("lists", JSON.stringify(lists));
   } else {
-    console.error('removeListInStorage error', listsResponse);
+    console.error("removeListInStorage error", listsResponse);
   }
 }
 
 function getLists() {
-  const listsResponse = localStorage.getItem('lists');
+  const listsResponse = localStorage.getItem("lists");
 
-  if(listsResponse) {
+  if (listsResponse) {
     const lists = JSON.parse(listsResponse);
     return lists;
   } else {
@@ -203,11 +311,11 @@ function getLists() {
 }
 
 function getListById(id) {
-  const listsResponse = localStorage.getItem('lists');
+  const listsResponse = localStorage.getItem("lists");
 
-  if(listsResponse) {
+  if (listsResponse) {
     const lists = JSON.parse(listsResponse);
-    return lists.find(list => list.id === id);
+    return lists.find((list) => list.id === id);
   } else {
     return undefined;
   }
@@ -227,4 +335,3 @@ function getListById(id) {
 //     totalValue: '400,00'
 //   }
 // ]
-
