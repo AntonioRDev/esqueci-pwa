@@ -1,5 +1,7 @@
 const mainCtn = document.getElementById("main-ctn");
-const editItens = [];
+const itemsToAdd = [];
+const itemsToEdit = [];
+let editingListId = '';
 
 window.onload = () => {
   moveToMainPage();
@@ -25,7 +27,7 @@ function controlHeading(page) {
   };
 
   switch (page) {
-    case "main":
+    case "main": {
       clearIcons();
       const addIcon = document.createElement("div");
       addIcon.id = "add";
@@ -38,7 +40,8 @@ function controlHeading(page) {
       headingCtn.insertBefore(addIcon, headingTitle);
       title.innerText = "Minhas Listas";
       break;
-    case "add":
+    }
+    case "add": {
       clearIcons();
       const backIcon = document.createElement("div");
       backIcon.id = "back";
@@ -59,8 +62,29 @@ function controlHeading(page) {
       headingCtn.insertBefore(saveIcon, headingTitle);
       title.innerText = "Criar Lista";
       break;
-    case "edit":
+    }
+    case "edit": {
+      clearIcons();
+      const backIcon = document.createElement("div");
+      backIcon.id = "back";
+      backIcon.className = "absolute left-10 cursor-pointer";
+      backIcon.innerHTML = `
+          <i class="fa-solid fa-angle-left"></i>
+      `;
+      backIcon.addEventListener("click", moveToMainPage);
+
+      const saveIcon = document.createElement("div");
+      saveIcon.id = "save";
+      saveIcon.className = "absolute right-10 cursor-pointer";
+      saveIcon.innerHTML = `
+          <i class="fa-solid fa-floppy-disk"></i>
+      `;
+
+      headingCtn.insertBefore(backIcon, headingTitle);
+      headingCtn.insertBefore(saveIcon, headingTitle);
+      title.innerText = "Editar Lista";
       break;
+    }
     default:
       break;
   }
@@ -141,7 +165,8 @@ function moveToMainPage() {
               <i class="fa-solid fa-pen-to-square cursor-pointer"></i>
             `;
             editButtonDiv.addEventListener("click", () => {
-              console.log("edit list ", list.id);
+              editingListId = list.id;
+              moveToEditListScreen();
             });
 
             itemDetailsCtnDiv.appendChild(editButtonDiv);
@@ -206,7 +231,7 @@ function moveToAddListScreen() {
     );
 
     const id = new Date().valueOf();
-    editItens.push({
+    itemsToAdd.push({
       id: id,
       name: values.productName,
       price: values.productPrice,
@@ -231,8 +256,8 @@ function moveToAddListScreen() {
     deleteBtn.addEventListener("click", () => {
       productDiv.remove();
 
-      const itemIndex = editItens.findIndex((item) => item.id === id);
-      editItens.splice(itemIndex, 1);
+      const itemIndex = itemsToAdd.findIndex((item) => item.id === id);
+      itemsToAdd.splice(itemIndex, 1);
     });
 
     inputs[1].value = "";
@@ -246,14 +271,145 @@ function moveToAddListScreen() {
     const listToPersist = {
       id: new Date().valueOf(),
       name: listName,
-      products: editItens,
+      products: itemsToAdd,
     };
 
     console.log("listToPersist", listToPersist);
 
     addListToStorage(listToPersist);
-    editItens.splice(0, editItens.length);
+    itemsToAdd.splice(0, itemsToAdd.length);
     moveToMainPage();
+  });
+}
+
+function moveToEditListScreen() {
+  clearMainContainer();
+  controlHeading("edit");
+
+  const listToEdit = getListById(editingListId);
+  listToEdit.products.forEach(p => itemsToEdit.push(p));
+
+  const editCtn = document.createElement("div");
+  editCtn.id = "edit-ctn";
+  editCtn.className = "pt-8 px-6";
+
+  editCtn.innerHTML = `
+        <div class='flex justify-center mb-2'>
+          <button id='delete-list' class="border rounded-lg p-2 bg-red-500 text-white">Excluir Lista</button>
+        </div>
+
+        <form id='edit-form' class="flex flex-col mb-6">
+          <input id='listName' class="border rounded-lg p-1 pl-2" type="text" placeholder="Digite o nome da lista..."/>
+
+          <div id="divider" class="py-4">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+
+          <input id='productName' class="border rounded-lg p-1 pl-2 mb-2" type="text" placeholder="Digite o nome do produto..."/>
+          <input id='productPrice' class="border rounded-lg p-1 pl-2 mb-2" type="text" placeholder="Digite o preço do produto..."/>
+
+          <div class="flex justify-center">
+            <button class="border rounded-lg p-2" type='submit'>Adicionar Item</button>
+          </div>
+        </form>
+    `;
+
+  mainCtn.appendChild(editCtn);
+
+  const form = document.getElementById("edit-form");
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const inputs = Array.from(document.querySelectorAll("#edit-form input"));
+    const values = inputs.reduce(
+      (keyValues, input) => ({ ...keyValues, [input.id]: input.value }),
+      {}
+    );
+
+    const id = new Date().valueOf();
+    itemsToEdit.push({
+      id: id,
+      name: values.productName,
+      price: values.productPrice,
+    });
+
+    const productDiv = document.createElement("div");
+    productDiv.className = "flex justify-between border rounded-lg p-3 mb-1";
+    productDiv.innerHTML = `
+      <p>${values.productName}</p>
+      <div class="flex">
+        <p class="mr-6">R$ ${values.productPrice}</p>
+        <i id='delete-list-item' class="fa-solid fa-trash cursor-pointer"></i>
+      </div>
+    `;
+    productDiv.setAttribute("data-id", id);
+
+    editCtn.appendChild(productDiv);
+
+    const deleteBtn = document.querySelector(
+      `[data-id="${id}"] #delete-list-item`
+    );
+    deleteBtn.addEventListener("click", () => {
+      productDiv.remove();
+
+      const itemIndex = itemsToEdit.findIndex((item) => item.id === id);
+      itemsToEdit.splice(itemIndex, 1);
+    });
+
+    inputs[1].value = "";
+    inputs[2].value = "";
+  });
+
+  const saveBtn = document.getElementById("save");
+  saveBtn.addEventListener("click", () => {
+    const listName = document.getElementById("listName").value;
+
+    const listToEdit = {
+      id: editingListId,
+      name: listName,
+      products: itemsToEdit,
+    };
+
+    editListInStorage(listToEdit);
+    itemsToEdit.splice(0, itemsToEdit.length);
+    editingListId = '';
+    moveToMainPage();
+  });
+
+  const deleteBtn = document.getElementById("delete-list");
+  deleteBtn.addEventListener('click', () => {
+    removeListInStorage(editingListId);
+    itemsToEdit.splice(0, itemsToEdit.length);
+    editingListId = '';
+    moveToMainPage();
+  });
+
+  // populate fields 
+  const listNameInput = document.getElementById('listName');
+  listNameInput.value = listToEdit.name;
+
+  listToEdit.products.forEach(item => {
+    const productDiv = document.createElement("div");
+    productDiv.className = "flex justify-between border rounded-lg p-3 mb-1";
+    productDiv.innerHTML = `
+      <p>${item.name}</p>
+      <div class="flex">
+        <p class="mr-6">R$ ${item.price}</p>
+        <i id='delete-list-item' class="fa-solid fa-trash cursor-pointer"></i>
+      </div>
+    `;
+    productDiv.setAttribute("data-id", item.id);
+
+    editCtn.appendChild(productDiv);
+
+    const deleteBtn = document.querySelector(
+      `[data-id="${item.id}"] #delete-list-item`
+    );
+    deleteBtn.addEventListener("click", () => {
+      productDiv.remove();
+
+      const itemIndex = itemsToEdit.findIndex((i) => i.id === item.id);
+      itemsToEdit.splice(itemIndex, 1);
+    });
   });
 }
 
@@ -267,7 +423,7 @@ function addListToStorage(list) {
   } else {
     const lists = JSON.parse(listsResponse);
     lists.push(list);
-    localStorage.setItem("lists", lists);
+    localStorage.setItem("lists", JSON.stringify(lists));
   }
 }
 
@@ -325,7 +481,7 @@ function getListById(id) {
 //   {
 //     id: 56322123,
 //     name: 'lista x',
-//     items: [
+//     products: [
 //       {
 //         id: 156456
 //         name: 'maionese',
