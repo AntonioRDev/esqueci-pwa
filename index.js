@@ -119,7 +119,7 @@ function moveToMainPage() {
           <p>${list.name}</p>
 
           <div class="flex">
-            <p class="mr-3">R$ ?</p>
+            <p class="mr-3">R$ ${list.products.reduce((acc, currentItem) => acc + currentItem.price, 0)}</p>
             <i id=${
               "toggle-item-details-" + list.id
             } class="fa-solid fa-chevron-down"></i>
@@ -211,7 +211,7 @@ function moveToAddListScreen() {
           </div>
 
           <input id='productName' class="border rounded-lg p-1 pl-2 mb-2" type="text" placeholder="Digite o nome do produto..."/>
-          <input id='productPrice' class="border rounded-lg p-1 pl-2 mb-2" type="text" placeholder="Digite o preço do produto..."/>
+          <input id='productPrice' class="border rounded-lg p-1 pl-2 mb-2" type="number" placeholder="Digite o preço do produto..."/>
 
           <div class="flex justify-center">
             <button class="border rounded-lg p-2" type='submit'>Adicionar Item</button>
@@ -229,39 +229,41 @@ function moveToAddListScreen() {
       (keyValues, input) => ({ ...keyValues, [input.id]: input.value }),
       {}
     );
-
-    const id = new Date().valueOf();
-    itemsToAdd.push({
-      id: id,
-      name: values.productName,
-      price: values.productPrice,
-    });
-
-    const productDiv = document.createElement("div");
-    productDiv.className = "flex justify-between border rounded-lg p-3 mb-1";
-    productDiv.innerHTML = `
-      <p>${values.productName}</p>
-      <div class="flex">
-        <p class="mr-6">R$ ${values.productPrice}</p>
-        <i id='delete-list-item' class="fa-solid fa-trash cursor-pointer"></i>
-      </div>
-    `;
-    productDiv.setAttribute("data-id", id);
-
-    createCtn.appendChild(productDiv);
-
-    const deleteBtn = document.querySelector(
-      `[data-id="${id}"] #delete-list-item`
-    );
-    deleteBtn.addEventListener("click", () => {
-      productDiv.remove();
-
-      const itemIndex = itemsToAdd.findIndex((item) => item.id === id);
-      itemsToAdd.splice(itemIndex, 1);
-    });
-
-    inputs[1].value = "";
-    inputs[2].value = "";
+    
+    if(values.productName && values.productPrice) {
+      const id = new Date().valueOf();
+      itemsToAdd.push({
+        id: id,
+        name: values.productName,
+        price: Number(values.productPrice),
+      });
+  
+      const productDiv = document.createElement("div");
+      productDiv.className = "flex justify-between border rounded-lg p-3 mb-1";
+      productDiv.innerHTML = `
+        <p>${values.productName}</p>
+        <div class="flex">
+          <p class="mr-6">R$ ${values.productPrice}</p>
+          <i id='delete-list-item' class="fa-solid fa-trash cursor-pointer"></i>
+        </div>
+      `;
+      productDiv.setAttribute("data-id", id);
+  
+      createCtn.appendChild(productDiv);
+  
+      const deleteBtn = document.querySelector(
+        `[data-id="${id}"] #delete-list-item`
+      );
+      deleteBtn.addEventListener("click", () => {
+        productDiv.remove();
+  
+        const itemIndex = itemsToAdd.findIndex((item) => item.id === id);
+        itemsToAdd.splice(itemIndex, 1);
+      });
+  
+      inputs[1].value = "";
+      inputs[2].value = "";
+    }
   });
 
   const saveBtn = document.getElementById("save");
@@ -273,8 +275,6 @@ function moveToAddListScreen() {
       name: listName,
       products: itemsToAdd,
     };
-
-    console.log("listToPersist", listToPersist);
 
     addListToStorage(listToPersist);
     itemsToAdd.splice(0, itemsToAdd.length);
@@ -324,39 +324,41 @@ function moveToEditListScreen() {
       (keyValues, input) => ({ ...keyValues, [input.id]: input.value }),
       {}
     );
-
-    const id = new Date().valueOf();
-    itemsToEdit.push({
-      id: id,
-      name: values.productName,
-      price: values.productPrice,
-    });
-
-    const productDiv = document.createElement("div");
-    productDiv.className = "flex justify-between border rounded-lg p-3 mb-1";
-    productDiv.innerHTML = `
-      <p>${values.productName}</p>
-      <div class="flex">
-        <p class="mr-6">R$ ${values.productPrice}</p>
-        <i id='delete-list-item' class="fa-solid fa-trash cursor-pointer"></i>
-      </div>
-    `;
-    productDiv.setAttribute("data-id", id);
-
-    editCtn.appendChild(productDiv);
-
-    const deleteBtn = document.querySelector(
-      `[data-id="${id}"] #delete-list-item`
-    );
-    deleteBtn.addEventListener("click", () => {
-      productDiv.remove();
-
-      const itemIndex = itemsToEdit.findIndex((item) => item.id === id);
-      itemsToEdit.splice(itemIndex, 1);
-    });
-
-    inputs[1].value = "";
-    inputs[2].value = "";
+    
+    if(values.productName && values.productPrice) { 
+      const id = new Date().valueOf();
+      itemsToEdit.push({
+        id: id,
+        name: values.productName,
+        price: Number(values.productPrice),
+      });
+  
+      const productDiv = document.createElement("div");
+      productDiv.className = "flex justify-between border rounded-lg p-3 mb-1";
+      productDiv.innerHTML = `
+        <p>${values.productName}</p>
+        <div class="flex">
+          <p class="mr-6">R$ ${values.productPrice}</p>
+          <i id='delete-list-item' class="fa-solid fa-trash cursor-pointer"></i>
+        </div>
+      `;
+      productDiv.setAttribute("data-id", id);
+  
+      editCtn.appendChild(productDiv);
+  
+      const deleteBtn = document.querySelector(
+        `[data-id="${id}"] #delete-list-item`
+      );
+      deleteBtn.addEventListener("click", () => {
+        productDiv.remove();
+  
+        const itemIndex = itemsToEdit.findIndex((item) => item.id === id);
+        itemsToEdit.splice(itemIndex, 1);
+      });
+  
+      inputs[1].value = "";
+      inputs[2].value = "";
+    }
   });
 
   const saveBtn = document.getElementById("save");
