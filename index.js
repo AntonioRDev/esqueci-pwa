@@ -1,12 +1,15 @@
+// Variáveis de controle
 const mainCtn = document.getElementById("main-ctn");
 const itemsToAdd = [];
 const itemsToEdit = [];
 let editingListId = '';
 
+// Evendo de load da janela, sempre renderizando a pagina principal
 window.onload = () => {
   moveToMainPage();
 };
 
+// Funcao para controlar o header da pagina que contem o titulo da pagina e os botoes laterais.
 function controlHeading(page) {
   const headingCtn = document.getElementById("heading-ctn");
   const headingTitle = document.getElementById("heading-title");
@@ -90,12 +93,14 @@ function controlHeading(page) {
   }
 }
 
+// Funcao para limpar a dom do container principal.
 function clearMainContainer() {
   while (mainCtn.firstChild) {
     mainCtn.removeChild(mainCtn.firstChild);
   }
 }
 
+// Funcao que renderiza a pagina princial e adiciona seus eventos
 function moveToMainPage() {
   clearMainContainer();
   controlHeading("main");
@@ -194,6 +199,7 @@ function moveToMainPage() {
   }
 }
 
+// Funcao que renderiza a pagina de adicionar uma nova lista e adiciona seus eventos
 function moveToAddListScreen() {
   clearMainContainer();
   controlHeading("add");
@@ -282,6 +288,7 @@ function moveToAddListScreen() {
   });
 }
 
+// Funcao que renderiza a pagina de editar uma lista e adiciona seus eventos
 function moveToEditListScreen() {
   clearMainContainer();
   controlHeading("edit");
@@ -415,7 +422,7 @@ function moveToEditListScreen() {
   });
 }
 
-// storage functions
+// Funcoes facilitadoras para gerenciar o storage
 function addListToStorage(list) {
   const listsResponse = localStorage.getItem("lists");
 
@@ -478,18 +485,3 @@ function getListById(id) {
     return undefined;
   }
 }
-
-// [
-//   {
-//     id: 56322123,
-//     name: 'lista x',
-//     products: [
-//       {
-//         id: 156456
-//         name: 'maionese',
-//         value: '350,00'
-//       }
-//     ],
-//     totalValue: '400,00'
-//   }
-// ]
